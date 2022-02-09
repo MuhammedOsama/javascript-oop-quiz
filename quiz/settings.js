@@ -1,17 +1,20 @@
+import Quiz from "./quiz.js";
+
 class Settings {
     constructor() {
         this.settings = document.querySelector('.settings');
-        this.quiz = document.querySelector('.quiz');
+        this.quizElement = document.querySelector('.quiz');
         this.category = document.querySelector('#category');
         this.nQuestions = document.querySelector('#nQuestions');
-        this.btn = document.querySelector('#btn');
+        this.startBtn = document.querySelector('#btn');
         this.difficulty = [
             document.querySelector('#easy'),
             document.querySelector('#medium'),
             document.querySelector('#hard')
         ];
 
-        this.btn.addEventListener('click', this.startQuizApp);
+        this.quiz = {};
+        this.startBtn.addEventListener('click', this.startQuizApp);
     }
 
     startQuizApp = async () => {
@@ -20,7 +23,8 @@ class Settings {
             const category = this.category.value;
             const difficulty = this.getDifficulty();
             const url = `https://opentdb.com/api.php?amount=${amount}&category=${category}&difficulty=${difficulty}`;
-            let result = await this.fetchData(url);
+            let {results} = await this.fetchData(url);
+            this.quiz = new Quiz(this.quizElement, amount, results);
             this.toggleElements();
         } catch (err) {
             alert(err);
@@ -45,13 +49,14 @@ class Settings {
         }
     }
 
-    fetchData = (url) => fetch(url)
-        .then((response) => response.json())
-        .then((data) => data.result);
+    fetchData = async (url) => {
+        const response = await fetch(url);
+        return await response.json();
+    }
 
     toggleElements = () => {
-        this.quiz.style.display = 'block';
         this.settings.style.display = 'none';
+        this.quiz.style.display = 'block';
     }
 }
 
